@@ -23,32 +23,50 @@ let notes = [
     important: true
   }
 ]
+const generateId = () => {
+  const notesIds = notes.map(n => n.id)
+  const maxId = notesIds.length ? Math.max(...notesIds) : 0
+  const newId = maxId + 1
+  return newId
+}
 app.get('/', (request, response) => {
   response.send('<h1>Hello World!</h1>')
 })
 
-app.get('/notes', (request, response) => {
+app.get('/api/notes', (request, response) => {
   response.json(notes)
 })
 
-app.get('/notes/:id', (request, response) => {
-  const id = request.params.id
+app.get('/api/notes/:id', (request, response) => {
+  const id = Number(request.params.id)
   const note = notes.find(note => note.id === id)
   if (note) {
-    response.json(note)
+    return response.json(note)
   } else {
     response.status(404).end()
   }
 })
-app.delete('/notes/:id', (request, response) => {
+
+app.delete('/api/notes/:id', (request, response) => {
   const id = Number(request.params.id)
   notes = notes.filter(note => note.id !== id)
   response.status(204).end()
 })
 
-app.post('/note/', (request, response) => {
+app.post('/api/notes', (request, response) => {
   const note = request.body
-  response.status(201).end()
+  if (!note.content) {
+    return response.status(400).json({
+      error: 'required "content" field is missing'
+    })
+  }
+  const newNote = {
+    id: generateId(),
+    content: note.content,
+    date: new Date(),
+    import: note.important || false
+  }
+  notes = notes.concat(newNote)
   response.json(note)
 })
 const PORT = 3001
