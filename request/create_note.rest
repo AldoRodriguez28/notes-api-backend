@@ -1,0 +1,6 @@
+POST http://localhost:3001/note
+content-type: application/json
+
+{
+      "content": "HTML is easy to POST"
+}
